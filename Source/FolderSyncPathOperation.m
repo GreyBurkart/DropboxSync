@@ -116,6 +116,12 @@
 	NSAssert([pathOperations containsObject:aPathOperation], @"");
 	aPathOperation.folderSyncPathOperation = nil;
 	[pathOperations removeObject:aPathOperation];
+    
+    id <PathControllerDelegate> delegate = self.pathController.delegate;
+	if ([delegate respondsToSelector:@selector(syncProgress:fromPathController:)]) {
+        [delegate syncProgress:((CGFloat)(operationCount - [pathOperations count])) / operationCount fromPathController:self.pathController];
+	}
+    
 	[self finishIfSyncOperationsAreFinished];
 }
 
@@ -332,6 +338,12 @@
 	}
 	
 	schedulingOperations = NO;
+    
+    operationCount = 0;
+    operationCount += [deletedServer count];
+    operationCount += [deletedLocal count];
+    operationCount += [gets count];
+    operationCount += [puts count];
 	
 	[self finishIfSyncOperationsAreFinished];
 }
